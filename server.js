@@ -1,6 +1,7 @@
-var express = require('express');
-var app = express();
-var bodyParser = require('body-parser')
+const express = require('express');
+const app = express();
+const bodyParser = require('body-parser');
+const FoodsController = require('./lib/controllers/foods-controller');
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -17,16 +18,7 @@ app.get('/', (request, response)  => {
 });
 
 
-app.get('/api/food/:id', function(request, response){
-  var id = request.params.id
-  var message = app.locals.food[id];
-
-  if(!message){return response.sendStatus(404) }
-  response.json({
-    id: id,
-    message: message
-  });
-});
+app.get('/api/foods/:id', FoodsController.show)
 
 // app.post('/api/foods/', function(request, response){
 //   var message = request.body;
