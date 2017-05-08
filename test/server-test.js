@@ -1,12 +1,18 @@
-var assert = require('chai').assert;
-var app = require('../lib/server');
-var request = require('request');
+const assert = require('chai').assert;
+const app = require('../server');
+const request = require('request');
 
-describe('Server', function() {
-  before(function(done){
-    this.port = 9876;
-    this.server = app.listen(this.port, function(err, result){
-      if(err) {return done(err); }
+const environment   = process.env.NODE_ENV || 'test'
+const configuration = require('../knexfile')[environment]
+const database      = require('knex')(configuration)
+
+
+describe('Server', () => {
+  before(done => {
+    this.port = 9876
+
+    this.server = app.listen(this.port, (err, result) => {
+      if(err) {return done(err) }
       done();
     });
 
@@ -15,18 +21,19 @@ describe('Server', function() {
     });
   });
 
-  after(function(){
+  after(() => {
     this.server.close();
-  })
+  });
 
-  it('should exist', function(){
+  it('should exist',() => {
     assert(app);
   });
 
-  describe('GET /', function(){
-    it('should return a 200', function(done){
-      this.request.get('/', function(error, response){
-        if (error) {return done(error) }
+  describe('GET /', () => {
+    it('should return a 200', (done) => {
+      this.request.get('/', (error, response) => {
+        if (error) {done(error) }
+
         assert.equal(response.statusCode, 200);
         done();
       });
@@ -35,10 +42,11 @@ describe('Server', function() {
     it('should have a body with the name of the application', function(done){
       var title = app.locals.title;
 
-      this.request.get('/', function(error, response){
-        if (error) {return done(error) }
+      this.request.get('/', (error, response) => {
+        if (error) { done(error) }
+
         assert(response.body.includes(title),
-          '"${response.body}" does not include "${title}".');
+          `"${response.body}" does not include "${title}".`);
         done();
       });
     })
@@ -76,22 +84,29 @@ describe('Server', function() {
   //   });
   // });
 
-  describe('GET /api/food/:id', function(){
-    beforeEach(function(){
-      app.locals.food = {
-        wow: "Banana"
-      }
+  describe('GET /api/foods/:id', () => {
+    beforeEach((done) => {
+      database.raw('INSERT INTO foods (food_name, calories) VALUES (?, ?)', ['banana', 35])
+      .then(() => {
+        done()
+      });
     });
 
-    it('should return a 404 if the response is not found', function(done){
-      this.request.get('/api/food/random', function(error, response){
+    afterEach((done) => {
+      database.raw('TRUNCATE foods RESTART IDENTITY')
+      .then(() => done())
+    })
+
+    it('should return a 404 if the response is not found', (done) => {
+      this.request.get('/api/foods/1000', (error, response) => {
         if (error) {done(error)}
+
         assert.equal(response.statusCode, 404)
         done();
       });
     });
 
-    it('should return a 200 if the response is found', function(done){
+    xit('should return a 200 if the response is found', function(done){
       this.request.get('/api/food/wow', function(error, response){
         if (error) {return done(error)}
         assert.equal(response.statusCode, 200);
@@ -100,16 +115,19 @@ describe('Server', function() {
       });
     });
 
-    it('should have the id and message from the resource', function(done){
-      var id = 'wow'
-      var message = app.locals.food['wow'];
+    it('should have the id, name and message from the resource', (done) => {
+      this.request.get('/api/food/1', (error, response) => {
+        if(error) {done(error)}
 
-      this.request.get('/api/food/wow', function(error, response){
-        if(error) {return done(error)}
-        assert(response.body.includes(id),
-          '"${response.body}" does not include "${id}".');
-        assert(response.body.includes(message),
-          '"${response.body}" does not include "${message}".');
+        const id = 1
+        const name = 'banana'
+        const calories = 35
+
+        let parsedFood = JSON.parse(response.body)
+        assert.equal(parsedFood.id, id)
+        assert.equal(parsedFood.name, name)
+        assert.equal(parsedFodd.calories, calories)
+
         done();
       });
     });
