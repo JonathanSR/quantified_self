@@ -1,5 +1,5 @@
 var assert = require('chai').assert;
-var app = require('../server');
+var app = require('../lib/server');
 var request = require('request');
 
 describe('Server', function() {
@@ -66,7 +66,7 @@ describe('Server', function() {
   //       assert.equal(response.statusCode, 200);
   //       done();
   //     });
-  //   }); 
+  //   });
 
   //   it('should return all of the food', function(done){
 
@@ -82,7 +82,7 @@ describe('Server', function() {
         wow: "Banana"
       }
     });
-  
+
     it('should return a 404 if the response is not found', function(done){
       this.request.get('/api/food/random', function(error, response){
         if (error) {done(error)}
@@ -98,7 +98,7 @@ describe('Server', function() {
         assert(response.body.includes("Banana"), 'ID was not included')
         done();
       });
-    });  
+    });
 
     it('should have the id and message from the resource', function(done){
       var id = 'wow'
@@ -116,7 +116,7 @@ describe('Server', function() {
   });
 
   // describe('POST /api/foods', function(){
-    
+
   //   it('should not return a 404', function(done){
   //     this.request.post('/api/foods', function(error, response){
   //       if (error) {return done(error)}
@@ -143,5 +143,3 @@ describe('Server', function() {
   //   });
   // });
 });
-
-
