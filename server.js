@@ -9,38 +9,21 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.set('port', process.env.PORT || 3000);
 app.locals.title = "Quantified Self"
 
-app.locals.food = {
-  wow: "Banana"
-};
 
 app.get('/', (request, response)  => {
-  response.send('Welcome to Quantified Self.')
+  response.send(app.locals.title)
 });
 
 
 app.get('/api/foods/:id', FoodsController.show)
 
-// app.post('/api/foods/', function(request, response){
-//   var message = request.body;
-//   var id = message
+app.get('/api/foods', FoodsController.index)
 
-//   if(!message){
-//     return response.status(422).send({
-//       error: 'No message property provided'
-//     })
-//   }
-//   response.status(201).json({id, message});
-// });
+app.post('/api/foods', FoodsController.create)
 
-// app.delete('/api/food/:id', function(request, response){
-//   var id = request.params.id;
-//   var message = app.locals.food[i];
+app.put('/api/foods/:id', FoodsController.update)
 
-
-// //some method to delete
-//   if(!//something//){return response. sendStatus(404)};
-// })
-
+app.delete('/api/foods/:id', FoodsController.destroy)
 
 if(!module.parent){
   app.listen(app.get('port'), () => {

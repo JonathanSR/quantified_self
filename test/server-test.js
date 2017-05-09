@@ -39,8 +39,8 @@ describe('Server', () => {
       });
     });
 
-    it('should have a body with the name of the application', function(done){
-      var title = app.locals.title;
+    it('should have a body with the name of the application', (done) => {
+      var title = app.locals.title
 
       this.request.get('/', (error, response) => {
         if (error) { done(error) }
@@ -50,39 +50,51 @@ describe('Server', () => {
         done();
       });
     })
-  });
+  });   
 
-  // describe('GET /api/food', function(){
-  //   beforeEach(function(){
-  //     app.locals.food = {
-  //       wow: "Banana",
-  //       wowo: "Orange",
-  //     }
+  // describe('GET /api/foods', () => { 
+  //   beforeEach((done) => {
+  //     database.raw('INSERT INTO foods (food_name, calories) VALUES (?, ?)', ['banana', 35])
+  //     database.raw('INSERT INTO foods (food_name, calories) VALUES (?, ?)', ['strawberry', 40])      
+  //     database.raw('INSERT INTO foods (food_name, calories) VALUES (?, ?)', ['cereal', 135])
+  //     .then(() => {
+  //       done()
+  //     });
   //   });
 
-  //   it('should return a 404 if the response is not found', function(done){
-  //     this.request.get('/api/food/', function(error, response){
-  //       if (error) {done(error)}
-  //       assert.equal(response.statusCode, 404)
+  //   afterEach((done) => {
+  //     database.raw('TRUNCATE foods RESTART IDENTITY')
+  //     .then(() => done())
+  //   }); 
+
+  //   it ('return all items on the food table', (done) => {
+  //     this.request.get('/api/foods', (error, response) => {
+  //       if(error) {done(error)}
+
+  //       let parsed = JSON.parse(response.body); 
+
+  //       debugger 
+
+  //       let id_one = 1
+  //       let food_name = 'banana'
+  //       let calories = 35
+
+
+  //       assert.deepEqual(parsed[0].food_name, 'banana'); 
+  //       assert.deepEqual(parsed[1].food_name, 'strawberry'); 
+  //       assert.deepEqual(parsed[2].food_name, 'cereal'); 
+
+  //       assert.deepEqual(parsed[0].calories, 35); 
+  //       assert.deepEqual(parsed[1].calories, 40); 
+  //       assert.deepEqual(parsed[2].calories, 135); 
+
   //       done();
-  //     });
-  //   });
-
-  //   it('should return a 200 if the response is found', function(done){
-  //     this.request.get('/api/food/', function(error, response){
-  //       if (error) {return done(error)}
-  //       assert.equal(response.statusCode, 200);
-  //       done();
-  //     });
-  //   });
-
-  //   it('should return all of the food', function(done){
-
-  //     this.request.get('/api/food', function(done){
-  //       assert.equal(response.statusCode, 200)
-  //     });
+  //     });  
   //   });
   // });
+
+
+
 
   describe('GET /api/foods/:id', () => {
     beforeEach((done) => {
@@ -106,58 +118,61 @@ describe('Server', () => {
       });
     });
 
-    xit('should return a 200 if the response is found', function(done){
-      this.request.get('/api/food/wow', function(error, response){
-        if (error) {return done(error)}
-        assert.equal(response.statusCode, 200);
-        assert(response.body.includes("Banana"), 'ID was not included')
-        done();
-      });
-    });
-
     it('should have the id, name and message from the resource', (done) => {
-      this.request.get('/api/food/1', (error, response) => {
+      this.request.get('/api/foods/1', (error, response) => {
         if(error) {done(error)}
 
         const id = 1
-        const name = 'banana'
+        const food_name = 'banana'
         const calories = 35
 
         let parsedFood = JSON.parse(response.body)
+
+        assert.equal(response.statusCode, 200);
         assert.equal(parsedFood.id, id)
-        assert.equal(parsedFood.name, name)
-        assert.equal(parsedFodd.calories, calories)
+        assert.equal(parsedFood.food_name, food_name)
+        assert.equal(parsedFood.calories, calories)
 
         done();
       });
     });
   });
 
-  // describe('POST /api/foods', function(){
+describe('POST /api/foods', () => {
+  it('should not return a 404', (done) =>{
+    this.request.post('/api/foods', (error, response) => {
+      if (error) {done(error) }
 
-  //   it('should not return a 404', function(done){
-  //     this.request.post('/api/foods', function(error, response){
-  //       if (error) {return done(error)}
-  //       assert.notEqual(response.statusCode, 404)
-  //       done();
-  //     });
-  //   });
-  // });
+      assert.notEqual(response.statusCode, 404)
+      done()
+    });
+  });
 
-  // describe('DELETE /api/foods/:id', function(){
-  //   beforeEach(function(){
-  //     app.locals.foods = {
-  //       wow: "Banana"
-  //     };
-  //   });
+  it('should receive and store data', (done) => {
+    // const id = {
+    //   id: 1
+    // }
 
-  //   it('should return a 404 if the food is not found', function(done){
-  //     this.request.delete('api/foods/wow', function(error, response){
-  //       if(error) {return done(error)}
+    const food_name = {
+      food_name: 'twix'
+    }
+    const calories = {
+      calories: 335
+    }
+    this.request.post('/api/foods',{form: food_name, form: calories}, (error, response) =>{
+      
+      // const id = 1
+      const food_name = 'twix'
+      const calories = 335
 
-  //       assert.equal(response.statusCode, 404)
-  //       done();
-  //     });
-  //   });
-  // });
+      let parsedFood = JSON.parse(response.body)
+
+      // assert.equal(parsedFood.id, id)
+      assert.equal(parsedFood.food_name, food_name)
+      assert.equal(parsedFood.calories, calories)
+
+      done()
+      })
+    });
+  });
 });
