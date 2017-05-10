@@ -49,52 +49,37 @@ describe('Server', () => {
           `"${response.body}" does not include "${title}".`);
         done();
       });
-    })
-  });   
+    });
+  });
 
-  // describe('GET /api/foods', () => { 
-  //   beforeEach((done) => {
-  //     database.raw('INSERT INTO foods (food_name, calories) VALUES (?, ?)', ['banana', 35])
-  //     database.raw('INSERT INTO foods (food_name, calories) VALUES (?, ?)', ['strawberry', 40])      
-  //     database.raw('INSERT INTO foods (food_name, calories) VALUES (?, ?)', ['cereal', 135])
-  //     .then(() => {
-  //       done()
-  //     });
-  //   });
+  describe('GET /api/foods', () => { 
+    beforeEach((done) => {
+      database.raw('INSERT INTO foods (food_name, calories) VALUES (?, ?)', ['banana', 35]).then (() => {
+      database.raw('INSERT INTO foods (food_name, calories) VALUES (?, ?)', ['strawberry', 40]).then (() => {
+      database.raw('INSERT INTO foods (food_name, calories) VALUES (?, ?)', ['cereal', 135]).then (() => {
+        done()
+      });
+    });
+  });
+});
 
-  //   afterEach((done) => {
-  //     database.raw('TRUNCATE foods RESTART IDENTITY')
-  //     .then(() => done())
-  //   }); 
+    afterEach((done) => {
+      database.raw('TRUNCATE foods RESTART IDENTITY')
+      .then(() => done())
+    });
 
-  //   it ('return all items on the food table', (done) => {
-  //     this.request.get('/api/foods', (error, response) => {
-  //       if(error) {done(error)}
+    it ('return all items on the food table', (done) => {
+      this.request.get('/api/foods', (error, response) => {
+        if(error) {done(error)}
 
-  //       let parsed = JSON.parse(response.body); 
-
-  //       debugger 
-
-  //       let id_one = 1
-  //       let food_name = 'banana'
-  //       let calories = 35
-
-
-  //       assert.deepEqual(parsed[0].food_name, 'banana'); 
-  //       assert.deepEqual(parsed[1].food_name, 'strawberry'); 
-  //       assert.deepEqual(parsed[2].food_name, 'cereal'); 
-
-  //       assert.deepEqual(parsed[0].calories, 35); 
-  //       assert.deepEqual(parsed[1].calories, 40); 
-  //       assert.deepEqual(parsed[2].calories, 135); 
-
-  //       done();
-  //     });  
-  //   });
-  // });
-
-
-
+        let parsed = JSON.parse(response.body) 
+        
+        assert.equal(response.statusCode, 200)
+        assert.equal(parsed.length, 3)
+        done();
+      });
+    });
+  });
 
   describe('GET /api/foods/:id', () => {
     beforeEach((done) => {
@@ -107,18 +92,18 @@ describe('Server', () => {
     afterEach((done) => {
       database.raw('TRUNCATE foods RESTART IDENTITY')
       .then(() => done())
-    })
+    });
 
     it('should return a 404 if the response is not found', (done) => {
       this.request.get('/api/foods/1000', (error, response) => {
         if (error) {done(error)}
-
+      
         assert.equal(response.statusCode, 404)
         done();
       });
     });
 
-    it('should have the id, name and message from the resource', (done) => {
+    it('should have the id, name and calories from the resource', (done) => {
       this.request.get('/api/foods/1', (error, response) => {
         if(error) {done(error)}
 
@@ -128,7 +113,7 @@ describe('Server', () => {
 
         let parsedFood = JSON.parse(response.body)
 
-        assert.equal(response.statusCode, 200);
+        assert.equal(response.statusCode, 200)
         assert.equal(parsedFood.id, id)
         assert.equal(parsedFood.food_name, food_name)
         assert.equal(parsedFood.calories, calories)
@@ -148,31 +133,94 @@ describe('POST /api/foods', () => {
     });
   });
 
-  it('should receive and store data', (done) => {
-    // const id = {
-    //   id: 1
-    // }
+  afterEach((done) =>{
+    database.raw('TRUNCATE foods RESTART IDENTITY')
+    .then(() => done())
+  });
 
-    const food_name = {
-      food_name: 'twix'
-    }
-    const calories = {
+  it('should receive and store data', (done) => {
+    var newFood ={
+      food_name: 'twix',
       calories: 335
-    }
-    this.request.post('/api/foods',{form: food_name, form: calories}, (error, response) =>{
-      
-      // const id = 1
-      const food_name = 'twix'
-      const calories = 335
+    };
+
+    this.request.post('/api/foods',{form: newFood}, (error, response) =>{ 
+      if (error) { done( error) }
+
+      const id   = 1
+      const name = 'twix'
+      const cal  = 335
 
       let parsedFood = JSON.parse(response.body)
+      food = parsedFood.rows[0]
 
-      // assert.equal(parsedFood.id, id)
-      assert.equal(parsedFood.food_name, food_name)
-      assert.equal(parsedFood.calories, calories)
+      assert.equal(food.id, id)
+      assert.equal(food.food_name, name)
+      assert.equal(food.calories, cal)
 
       done()
-      })
+      });
+    });
+  });
+
+describe('PUT /api/foods', () =>{
+  beforeEach((done) =>{
+    database.raw('INSERT INTO foods (food_name, calories) VALUES (?, ?)', ['banana', 35])
+    .then(() =>{
+    done()
+    });
+  });
+
+  afterEach((done) => {
+    database.raw('TRUNCATE foods RESTART IDENTITY')
+    .then(() => done())
+  });
+
+  it('should update the name and calories from the resource', (done) => {
+
+    const updateFood = {
+      food_name: "Black Coffee",
+      calories: 0
+    };
+    this.request.put('/api/foods/1',{form: updateFood}, (error, response) => {
+      if (error) {done( error) }
+
+      const id =1
+      const name = "Black Coffee"
+      const calories = 0
+
+      let updatedFood =JSON.parse(response.body)
+      food = updatedFood.rows[0]
+      assert.equal(response.statusCode, 201)
+      assert.equal(food.id, id)
+      assert.equal(food.food_name, name)
+      assert.equal(food.calories, calories)
+      done();
+      });
+    });
+  });
+
+
+describe('DELETE /api/foods/:id', () => {
+  beforeEach((done) => {
+    database.raw('INSERT INTO foods (food_name, calories) VALUES (?, ?)', ['banana', 35])
+      .then(() => {
+        done()
+      });
+    });
+
+    afterEach((done) => {
+      database.raw('TRUNCATE foods RESTART IDENTITY')
+      .then(() => done())
+    });
+
+    it('should delete a food', (done) => {
+      this.request.delete('/api/foods/1', (error, response) => {
+        if(error) {done(error)}
+
+        assert.equal(response.statusCode, 204)
+        done();
+      });
     });
   });
 });
