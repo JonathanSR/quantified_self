@@ -2,7 +2,10 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const FoodsController = require('./lib/controllers/foods-controller');
+const cors = require('cors');
 
+
+app.use(cors({origin: '*'}))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
