@@ -14,7 +14,7 @@ exports.seed = function(knex, Promise) {
         ["Dinner"]
       ),
       knex.raw (
-        'INSERT INTO meals (meal_name) VALUES (?)',
+        'INSERT INTO meals (meal_name3) VALUES (?)',
         ["Snack"]
       )
     ]);
