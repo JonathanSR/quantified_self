@@ -30,7 +30,7 @@ app.get('/api/diary/:id', DiaryController.show)
 app.get('/api/diary', DiaryController.index)
 app.post('/api/diary', DiaryController.create)
 app.put('/api/diary/:id', DiaryController.update)
-// app.get('/api/diary/:id', DiaryController.destroy)
+app.delete('/api/diary/:id', DiaryController.destroy)
 
 
 if(!module.parent){
