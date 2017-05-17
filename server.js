@@ -27,8 +27,9 @@ app.delete('/api/foods/:id', FoodsController.destroy)
 
 // for diary
 app.get('/api/diary/:id', DiaryController.show)
-// app.post('/api/diary/:id', DiaryController.create)
-// app.put('/api/diary/:id', DiaryController.update)
+app.get('/api/diary', DiaryController.index)
+app.post('/api/diary', DiaryController.create)
+app.put('/api/diary/:id', DiaryController.update)
 // app.get('/api/diary/:id', DiaryController.destroy)
 
 
