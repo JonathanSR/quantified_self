@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const FoodsController = require('./lib/controllers/foods-controller');
+const DiaryController = require('./lib/controllers/diary-controller');
 const cors = require('cors');
 
 
@@ -17,7 +18,6 @@ app.get('/', (request, response)  => {
   response.send(app.locals.title)
 });
 
-
 app.get('/api/foods/:id', FoodsController.show)
 
 app.get('/api/foods', FoodsController.index)
@@ -27,6 +27,20 @@ app.post('/api/foods', FoodsController.create)
 app.put('/api/foods/:id', FoodsController.update)
 
 app.delete('/api/foods/:id', FoodsController.destroy)
+
+//
+
+app.get('/api/diary/:id', DiaryController.show)
+
+app.get('/api/diary', DiaryController.index)
+
+app.post('/api/diary', DiaryController.create)
+
+app.put('/api/diary/:id', DiaryController.update)
+
+app.delete('/api/diary/:id', DiaryController.destroy)
+
+
 
 if(!module.parent){
   app.listen(app.get('port'), () => {
